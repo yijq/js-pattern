@@ -47,6 +47,56 @@ Takashi.prototype = new Reiko();
 
 var _takashi = new Takashi();
 
-_takashi.seeMonster    //true
+console.log(_takashi.seeMonster);    //true
 
+```
+
+## this和call及apply
+- this
+    - this的指向
+        - 作为对象的方法调用，指向该对象
+        - 作为普通函数调用，指向全局对象，严格模式下为undefined
+        - 构造器调用，指向构造器返回的对象
+        - Function.prototype.call或Function.prototype.apply调用
+        - 不常用的with和eval
+- call和apply
+    - call和apply的区别
+        - call和apply作用一模一样，区别仅在于传入参数形式的不同
+        - apply接受两个参数，第一个参数指定了函数体内this对象的指向，第二个参数为一个带下标的集合，这个集合可以是数组，也可以是类数组，apply方法把这个集合中的元素作为参数传递给被调用的函数
+        - call传入的参数数量不固定，第一个参数也是代表函数体内的this指向，从第二个参数开始往后，每个参数被依次传入函数
+        - 从内部实现来说，apply比call的效率高
+    - call和apply的用途
+        - 改变this的指向
+        - Function.prototype.bind
+        - 借用其他对象的方法
+- 代码：
+```html
+<!-- 这是一个关于this作为普通函数调用时的例子，这时this指向‘window’ -->
+<html>
+    <body>
+        <div id="div1">我是一个div</div>
+    </body>
+    <script>
+        window.id = 'window';
+
+        document.getElementById('div1').onclick = function() {
+            alert(this.id);    //输出： "div1"
+            var callback = function() {
+                alert(this.id);    //输出： "window"
+            };
+            callback();
+        };
+
+    </script>
+</html>
+
+```
+```javascript
+//实现Function.prototype.bind
+Function.prototype.bind = function( context ) {
+    var self = this;
+    return function() {
+        return self.apply( context, arguments );
+    }
+};
 ```
