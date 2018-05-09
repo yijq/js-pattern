@@ -1,7 +1,7 @@
 # JavaScript设计模式与开发实践
 
 ## 原型模式
-    原型模式是一种设计模式，也是一种变成泛型，它构成了JavaScriptS这门语言的根本。动态类型语言和鸭子类型。
+    原型模式是一种设计模式，也是一种变成泛型，它构成了JavaScript这门语言的根本。动态类型语言和鸭子类型。
 - 多态
     - 同一操作作用于不同的对象上面，可以产生不同的解释和不同的执行结果。
 - 封装 
@@ -100,3 +100,128 @@ Function.prototype.bind = function( context ) {
     }
 };
 ```
+
+## 闭包和高阶函数
+- 闭包
+    - 变量的作用域
+    - 变量的生命周期
+        - 循环为DOM节点绑定事件
+    - 更多作用：
+        - 封装变量
+        ```javascript
+             /*阶乘函数*/
+            var mult = (function() {
+                var cache = {};/*结果缓存*/
+                var calculate = function() {
+                    var a = 1;
+                    for ( var i = 0, l = arguments.length; i < l; i++ ) {
+                        a = a * arguments[i];
+                    }
+
+                    return a;
+                };
+
+                return function() {
+                    var args = Array.prototype.join.call( arguments, "," );
+                    if( args in cache ) {
+                        return cacge[ args ];
+                    }
+                    return cache[ args ] = calculate.apply( null, arguments );
+                };
+            })();
+        ```
+        - 延续局部变量的寿命
+        ```javascript
+            /*img进行数据上报,使用闭包防止Image对象被销毁,以解决请求丢失的问题*/
+            var report = (function() {
+                var imgs = [];
+                return function( src ) {
+                    var img = new Image();
+                    imgs.push( img );
+                    img.src = src;
+                }
+            })();
+        ```
+    - 闭包和面向对象设计
+        ```javascript
+            var extent = function() {
+                var value = 0;
+                return {
+                    call: function() {
+                        value++ ;
+                        console.log(value)
+                    }
+                }
+            };
+
+            var _extent = extent();
+
+            _extent.call()  /* 1 */
+            _extent.call()  /* 2 */
+            _extent.call()  /* 3 */
+        ```
+    - 用闭包实现命令模式
+    - 闭包与内存管理
+        - 闭包和内存泄漏有关系的地方，使用闭包的同时比较容易形成循环引用，如果闭包的作用域中保存着一些DOM节点，这时就有可能造成内存泄漏。这本身并非闭包的问题，也并非JavaScript的问题。
+- 高阶函数
+    - 函数作为参数传递
+        - 回调函数
+            - ajax回调函数
+        - Array.prototype.sort
+    - 函数作为返回值输出
+        - 判断数据的类型
+        ```javascript
+        var TYpe = {};
+
+        for (var i = 0, type; type = [ "String", "Array", "Number" ][ i++ ];) {
+            (function(type){
+                Type['is' + type] = function( obj ) {
+                    return Object.prototype.toString.call( obj ) === '[object '+ type +']';
+                }; 
+            } )(type)
+        }
+
+
+
+        ```
+        - getSingle
+        ```javascript
+        var getSingle = function( fn ) {
+            var ret;
+            return function() {
+                return ret || ( ret = fn.apply( this, arguments ) );/*this指向函数调用的作用域*/
+            }
+        };
+
+        ```
+    - 高阶函数实现AOP(面向切面编程)
+    ```javascript
+    Function.prototype.before = function( beforefn ) {
+        var _self = this;
+        return function() {
+            beforefn.apply( this, arguments );
+            return _self.apply( this, arguments );
+        };
+    };
+
+    Function.prototype.after = function( afterfn ) {
+        var _self = this;
+        return function() {
+            var ret = _self.apply( this, arguments );
+            afterfn.apply( this, arguments );
+            return ret;
+        }
+    };
+
+    var func = function() {
+        console.log( 2 );
+    };
+
+    func = func.before(function(){
+        consoel.log( 1 );
+    }).after(function(){
+        console.log( 3 );
+    });
+
+    func(); /*1 , 2 , 3*/
+    ```
