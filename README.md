@@ -171,7 +171,7 @@ Function.prototype.bind = function( context ) {
     - 函数作为返回值输出
         - 判断数据的类型
         ```javascript
-        var TYpe = {};
+        var Type = {};
 
         for (var i = 0, type; type = [ "String", "Array", "Number" ][ i++ ];) {
             (function(type){
@@ -225,3 +225,39 @@ Function.prototype.bind = function( context ) {
 
     func(); /*1 , 2 , 3*/
     ```
+    - 高阶函数的其他应用
+        - currying
+        ```javascript
+        var currying = function( fn ) {
+            var args = [];
+            return function() {
+                if(arguments.length === 0) {
+                    return fn.apply( this, arguments );
+                } else {
+                    [].push.apply( args, arguments );
+                    return arguments.callee;
+                }
+            }
+        };
+
+        var cost = (function() {
+            var money = 0;
+
+            return function() {
+                for ( var i = 0, l = arguments.length; i < l; i ++ ) {
+                    money += arguments[ i ];
+                }
+                return money;
+            }
+        })();
+        ```
+        - uncurrying
+        ```javascript
+        Function.prototype.uncurrying = function() {
+            var self = this;
+            return function() {
+                var obj = Array.prototype.shift.call( arguments );
+                return self.apply( obj, arguments );
+            }
+        };
+        ```
