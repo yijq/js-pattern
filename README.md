@@ -297,3 +297,42 @@ Function.prototype.bind = function( context ) {
             };
         };
         ```
+        - 分时函数
+        ```javascript
+        var timeChunk = function( ary, fn, count ) {
+            var obj,
+                t;
+            
+            var start = function() {
+                for ( var i = 0; i < Math.min( count || 1, ary.length ); i++ ) {
+                    var obj = ary.shift();
+                    fn(obj);
+                }
+            }
+
+            return function() {
+                t = setInterval(function() {
+                    if( ary.length === 0 ) {
+                        return clearInterval(t);
+                    }
+                    start();
+                }, 200);
+            };
+        };
+        ```
+        - 惰性加载函数
+        ```javascript
+        var addEvent = function( elem, type, handler ) {
+            if( window.addEventListener ) {
+                addEvent = function( elem, type, handler ) {
+                    elem.addEventListener( type, handler, false )
+                };
+            } else {
+                addEvent = function( elem, type, handler ) {
+                    elem.attachEvent( 'on' + type, handler );
+                }
+            }
+
+            addEvent( elem, type, handler );
+        };
+        ```
