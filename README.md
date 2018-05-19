@@ -1,5 +1,7 @@
 # JavaScript设计模式与开发实践
 
+----
+
 ## 原型模式
     原型模式是一种设计模式，也是一种变成泛型，它构成了JavaScript这门语言的根本。动态类型语言和鸭子类型。
 - 多态
@@ -336,3 +338,131 @@ Function.prototype.bind = function( context ) {
             addEvent( elem, type, handler );
         };
         ```
+
+## 单例模式
+- 定义： 保证一个类仅有一个实例，并提供一个访问它的全局访问点。
+- 单例模式实现一：面向对象
+```javascript
+var Singleton = function( name ) {
+    this.name = name;
+    this.instance = null;
+};
+
+Singleton.prototype.getName = function() {
+    alert(this.name);
+};
+
+Singleton.getInstance = function( name ) {
+    if( !this.instance ) {
+        this.instance = new Singleton( name );
+    }
+
+    return this.instance;
+};
+
+
+var instance1 = Singleton.getInstance("naruto");
+var instance2 = Singleton.getInstance("itach");
+
+console.log( instance1 === instance2 ) //true
+instance2.getName(); //naruto
+
+```
+
+- 单例模式实现二：闭包
+```javascript
+var Singleton = function( name ) {
+    this.name = name;
+};
+
+Singleton.prototype.getName = function() {
+    alert(this.name);
+};
+
+Singleton.getInstance = (function(){
+    var instance = null;
+
+    return funtion( name ) {
+        if( !instance ) {
+            instance = new Singleton( name );
+        }
+
+        return instance;
+    }
+})();
+
+```
+
+- 单例模式实现三：透明的单例模式
+```javascript
+var createDiv = (function() {
+    var instance;
+
+    var createDiv = function( html ) {
+        if( instance ) {
+            return instance;
+        }
+
+        this.html = html;
+        this.init();
+
+        return instance = this;
+    };
+
+    createDiv.prototype.init = function() {
+        var div = document.createElement('div');
+
+        div.innerHTML = this.html;
+        document.body.appendChild(div);
+    }
+})();
+
+var div1 = new createDiv("<div>1<div>");
+var div2 = new createDiv("<div>2<div>");
+
+alert(div1 === div2); //true
+```
+
+- 单例模式实现四：用代理实现单例模式
+```javascript
+var createDiv = function( html ) {
+    this.html = html;
+    this.init();
+};
+
+CreateDiv.prototype.init = function() {
+    var div = document.createElement('div');
+
+    div.innerHTML = this.html;
+    document.body.appendChild(div);
+};
+
+var ProxySingletonCreateDiv = (function() {
+
+    var instance;
+
+    return function( html ) {
+        if( !instance ) {
+            instance = new createDiv(html);
+        }
+
+        return instance;
+    }
+
+})();
+
+```
+
+- 通用的单例模式
+```javascript
+var getSingle = function( fn ) {
+    var ret;
+    return funtion() {
+        return ret || ( result = fn.apply(this, arguments) );
+    }
+};
+```
+
+
+
+
