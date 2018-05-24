@@ -463,6 +463,65 @@ var getSingle = function( fn ) {
 };
 ```
 
+## 策略模式
 
+- 定义：定义一系列的算法，把它们一个个封装起来，并且使它们可以互相替换。
+- 面向对象的策略模式
+```javascript
+/* 策略组 */
+var performanceS = function() {};
+
+performanceS.prototype.calculate = function( salary ) {
+    return salary * 4;
+}
+
+var performanceA = function() {};
+
+performanceA.prototype.calculate = function( salary ) {
+    return salary * 3;
+}
+
+var performanceB = function() {};
+
+performanceB.prototype.calculate = function( salary ) {
+    return salary * 2;
+}
+
+/* context组 */
+var Bonus = function() {
+    this.salary = null;
+    this.strategy = null;
+};
+
+Bonus.prototype.setSalary = function( salary ) {
+    this.salary = salary;
+};
+
+Bonus.prototype.setStrategy = function( strategy ) {
+    this.strategy = strategy;
+}
+
+```
+- JavaScript版本的策略模式
+```javascript
+var strategies = {
+    "S": function( salary ) {
+        return salary * 4;
+    }, 
+    "A": function( salary ) {
+        return salary * 3;
+    },
+    "B": function( salary ) {
+        return salary * 2;
+    } 
+};
+
+var calculateBonus = function( level, salary ) {
+    return strategies[ level ]( salary );
+};
+
+console.log( calculateBonus( 'S', 20000 ) ); //80000
+console.log( calculateBonus( 'A', 10000 ) ); //30000
+```
 
 
